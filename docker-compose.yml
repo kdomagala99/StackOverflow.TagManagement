@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  db:
+    build:
+      context: ./src/StackOverflow.TagManagement.Db
+      dockerfile: Dockerfile
+    container_name: stackoverflow_tagmanagement_db
+    ports:
+      - "27017:27017"
