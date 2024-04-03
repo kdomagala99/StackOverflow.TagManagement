@@ -8,7 +8,7 @@ var services = builder.Services;
 services.AddControllersWithConfiguration();
 services.AddOpenApiData();
 services.AddHttpClientWithHandler();
-services.AddSingletons(builder);
+services.AddSingletons();
 services.AddScopeds();
 
 var app = builder.Build();
@@ -22,7 +22,7 @@ if (app.Environment.IsDevelopment())
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
     var logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    logger?.LogTrace("Trace first log message from application:[Program][{CurrentUtcTime}]", DateTime.UtcNow);
+    logger?.LogTrace("Trace first log message from application:{CurrentUtcTime}", DateTime.UtcNow);
 }
 
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
