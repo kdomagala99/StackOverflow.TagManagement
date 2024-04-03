@@ -18,34 +18,6 @@ public class MongoDbContext : IDbContext
         this.metaDataCollection = database.GetCollection<TagMetaData>(mongoDbConfiguration.MetaDataCollectionName);
     }
 
-    public async Task<bool> DeleteStackOverflowTagAsync(string name, CancellationToken cancellationToken = default)
-    {
-        var tag = await this.stackOverflowTagsCollection.Find(tag => tag.Name!.Equals(name))
-            .FirstOrDefaultAsync(cancellationToken);
-
-        if (tag is null)
-        {
-            return false;
-        }
-
-        var result = await this.stackOverflowTagsCollection.DeleteOneAsync(tag => tag.Name!.Equals(name), cancellationToken);
-        var deleteResult = result.DeletedCount > 0;
-
-        if (deleteResult)
-        {
-            await this.AddCountValue(-tag.Count);
-        }
-
-        return deleteResult;
-    }
-
-    public async Task<StackOverflowTagDto?> GetStackOverflowTagAsync(string name, CancellationToken cancellationToken = default)
-    {
-        var result = await this.stackOverflowTagsCollection.FindAsync(tag => tag.Name!.Equals(name),
-            cancellationToken: cancellationToken);
-        return result.FirstOrDefault(cancellationToken: cancellationToken);
-    }
-
     public async Task<IEnumerable<StackOverflowTagDto>> GetStackOverflowTagsAsync(CancellationToken cancellationToken = default)
     {
         var result = await this.stackOverflowTagsCollection.Find(_ => true)
@@ -53,35 +25,6 @@ public class MongoDbContext : IDbContext
         return result;
     }
 
-    public async Task<bool> PostStackOverflowTagAsync(StackOverflowTagDto stackOverflowTag, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            await this.stackOverflowTagsCollection.InsertOneAsync(stackOverflowTag,
-                cancellationToken: cancellationToken);
-            await this.AddCountValue(stackOverflowTag.Count);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    public async Task<bool> PutStackOverflowTagAsync(string name, StackOverflowTagDto stackOverflowTag, CancellationToken cancellationToken = default)
-    {
-        var result = await this.stackOverflowTagsCollection.FindOneAndReplaceAsync(tag => tag.Name!.Equals(name),
-            stackOverflowTag,
-            cancellationToken: cancellationToken);
-
-        if (result != null)
-        {
-            await this.AddCountValue(result.Count);
-            return true;
-        }
-
-        return false;
-    }
     public async Task<long> CountTagsAsync(CancellationToken cancellationToken = default)
         => await this.stackOverflowTagsCollection.CountDocumentsAsync(_ => true, cancellationToken: cancellationToken);
 

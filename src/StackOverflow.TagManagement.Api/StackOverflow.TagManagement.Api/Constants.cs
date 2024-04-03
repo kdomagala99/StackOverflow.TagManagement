@@ -12,12 +12,20 @@ public static class Constants
             int min = 1,
             int max = 999,
             Sort sort = Sort.Popular)
-            => $@"{StackOverflowBaseUrl}/tags?page={page}&pagesize={pageSize}&fromdate=1217541600&todate=1893452400&order={order.ToString().ToLower()}&min={min}&max={max}&sort={sort.ToString().ToLower()}&site=stackoverflow";
+            => $"{StackOverflowBaseUrl}/tags?page={page}&pagesize={pageSize}&fromdate=1217541600&todate=1893452400&order={order.ToString().ToLower()}&min={min}&max={max}&sort={sort.ToString().ToLower()}&site=stackoverflow";
     }
 
     public static class Messages
     {
         public const string SuccessfullyRefreshedTags = "Successfully refreshed tags from StackOverflow";
+
+        public const string NotFoundException = "The requested resource was not found.";
+
+        public const string InternalServerErrorException = "An internal server error occurred.";
+
+        public const string ServiceUnavailableException = "The service is currently unavailable.";
+
+        public const string InsufficientStorageException = "Insufficient storage or database issue to complete the operation.";
     }
 
     public const int MAX_ITERATIONS = 100;

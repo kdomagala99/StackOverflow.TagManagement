@@ -1,7 +1,7 @@
 ﻿using StackOverflow.TagManagement.Api.Database;
 using StackOverflow.TagManagement.Api.DTO;
+using StackOverflow.TagManagement.Api.Exceptions;
 using StackOverflow.TagManagement.Api.Extensions;
-using System.Numerics;
 using System.Text.Json;
 
 namespace StackOverflow.TagManagement.Api.Services;
@@ -14,6 +14,12 @@ public class TagsService(IHttpClientFactory httpClientFactory, IDbContext dbCont
     public async Task<IEnumerable<GetStackOverflowTagDto>> GetTagsFromLocalDbAsync(int skip, int take, Order orderByName, Order orderByTagPercentage, CancellationToken cancellationToken)
     {
         var tags = await this.dbContext.GetStackOverflowTagsAsync(cancellationToken);
+
+        if (tags is null)
+        {
+            throw new NotFoundException();
+        }
+
         var totalCount = await this.dbContext.GetStackOverflowTagsTotalCountAsync(cancellationToken);
         var values = tags.Select(t =>
         {
@@ -55,7 +61,6 @@ public class TagsService(IHttpClientFactory httpClientFactory, IDbContext dbCont
         }
 
         return values.Skip(skip).Take(take);
-
     }
 
     public async Task GetTagsFromStackOverflowAsync(int startPage = 1, int pageCount = 20, CancellationToken cancellationToken = default)
@@ -65,12 +70,23 @@ public class TagsService(IHttpClientFactory httpClientFactory, IDbContext dbCont
         {
             tags.AddRange(await this.GetTagsAsync(i, cancellationToken));
         }
-        await this.dbContext.PostStackOverflowTagsAsync(tags, cancellationToken);
+        
+        var result = await this.dbContext.PostStackOverflowTagsAsync(tags, cancellationToken);
+        if(!result)
+        {
+            throw new InsufficientStorageException();
+        }
     }
 
     private async Task<IEnumerable<StackOverflowTagDto>> GetTagsAsync(int page, CancellationToken cancellationToken = default)
     {
         var response = await this.httpClient.GetAsync(Constants.StackOverflow.GetTagsEndpoint(page: page), cancellationToken);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ServiceUnavailableException();
+        }
+
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
         var tagsResponse = JsonSerializer.Deserialize<TagsResponseDto>(content, JsonSerializerOptionsExtension.ReadOptions);
         return tagsResponse?.Items ?? [];
