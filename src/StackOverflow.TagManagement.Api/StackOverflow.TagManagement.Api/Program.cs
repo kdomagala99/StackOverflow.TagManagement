@@ -34,8 +34,6 @@ app.UseMiddleware<LoggingMiddleware>();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
-app.UseHttpsRedirection();
-
 app.MapControllers();
 
 app.Run();

@@ -1,10 +1,35 @@
 version: '3.8'
 
 services:
-  db:
-    build:
-      context: ./src/StackOverflow.TagManagement.Db
-      dockerfile: Dockerfile
-    container_name: stackoverflow_tagmanagement_db
+  stackoverflow-tagmanagement-db:
+    image: mongo:latest
     ports:
       - "27017:27017"
+    container_name: stackoverflow-tagmanagement-db
+    restart: always
+    volumes:
+      - stackoverflow-tagmanagement-db-data:/data/db
+    networks:
+      - stackoverflowmanagement
+    hostname: stackoverflow-tagmanagement-db
+  stackoverflow-tagmanagement-api:
+    build:
+      context: ./src/StackOverflow.TagManagement.Api/StackOverflow.TagManagement.Api
+      dockerfile: Dockerfile
+    container_name: stackoverflow-tagmanagement-api
+    ports:
+      - "5000:5000"
+    restart: always
+    depends_on:
+      - stackoverflow-tagmanagement-db
+    networks:
+      - stackoverflowmanagement
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - MongoDbConfiguration__ConnectionString=mongodb://stackoverflow-tagmanagement-db:27017
+
+networks:
+  stackoverflowmanagement:
+
+volumes:
+  stackoverflow-tagmanagement-db-data:

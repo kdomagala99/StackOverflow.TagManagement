@@ -1,8 +1,0 @@
-FROM mongo:7.0.8-rc0-jammy
-
-ENV MONGO_INITDB_ROOT_USERNAME=admin
-ENV MONGO_INITDB_ROOT_PASSWORD=admin
-
-EXPOSE 27017
-
-CMD ["mongod"]
