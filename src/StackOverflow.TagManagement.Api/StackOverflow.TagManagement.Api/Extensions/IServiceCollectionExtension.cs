@@ -21,7 +21,7 @@ public static class IServiceCollectionExtension
                 };
             });
         });
-        services.AddHttpClient();
+        services.AddHttpClient("StackOverflow");
         return services;
     }
 
@@ -32,10 +32,9 @@ public static class IServiceCollectionExtension
         return services;
     }
 
-    public static IServiceCollection AddSingletons(this IServiceCollection services, WebApplicationBuilder builder)
+    public static IServiceCollection AddSingletons(this IServiceCollection services)
     {
-        services.AddSingleton<IDbContext, MongoDbContext>(provider => new MongoDbContext(
-            builder.Configuration.GetValue<MongoDbConfiguration>("MongoDbConfiguration") ?? new MongoDbConfiguration()));
+        services.AddSingleton<IDbContext, MongoDbContext>(provider => new MongoDbContext(new MongoDbConfiguration()));
         return services;
     }
 
