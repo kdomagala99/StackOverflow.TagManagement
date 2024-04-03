@@ -8,7 +8,7 @@ public static class Constants
     {
         public static string GetTagsEndpoint(uint page = 1,
             uint pageSize = 100,
-            Order order = Order.Asc,
+            Order order = Order.Desc,
             uint min = 1,
             uint max = 999,
             Sort sort = Sort.Popular)
@@ -22,6 +22,8 @@ public static class Constants
 
     public const uint MAX_ITERATIONS = 100;
     public const uint MIN_TAGS_COUNT = 1000;
+
+    public const string METADATA_VERSION = "MetaDataV1";
 }
 
 public enum Order 

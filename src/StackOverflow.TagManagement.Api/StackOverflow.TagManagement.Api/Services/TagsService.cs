@@ -1,5 +1,6 @@
 ﻿using StackOverflow.TagManagement.Api.Database;
 using StackOverflow.TagManagement.Api.DTO;
+using StackOverflow.TagManagement.Api.Extensions;
 using System.Text.Json;
 
 namespace StackOverflow.TagManagement.Api.Services;
@@ -23,7 +24,7 @@ public class TagsService(IHttpClientFactory httpClientFactory, IDbContext dbCont
     {
         var response = await this.httpClient.GetAsync(Constants.StackOverflow.GetTagsEndpoint(page: page), cancellationToken);
         var content = await response.Content.ReadAsStringAsync(cancellationToken);
-        var tagsResponse = JsonSerializer.Deserialize<TagsResponseDto>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var tagsResponse = JsonSerializer.Deserialize<TagsResponseDto>(content, JsonSerializerOptionsExtension.ReadOptions);
         return tagsResponse?.Items ?? [];
     }
 }

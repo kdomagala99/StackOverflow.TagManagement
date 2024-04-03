@@ -1,4 +1,5 @@
 ﻿using StackOverflow.TagManagement.Api.DTO;
+using System.Numerics;
 
 namespace StackOverflow.TagManagement.Api.Database;
 
@@ -11,4 +12,5 @@ public interface IDbContext
     Task<bool> DeleteStackOverflowTagAsync(string name, CancellationToken cancellationToken);
     Task<long> CountTagsAsync(CancellationToken cancellationToken);
     Task<bool> PostStackOverflowTagsAsync(IEnumerable<StackOverflowTagDto> stackOverflowTags, CancellationToken cancellationToken);
+    Task<BigInteger> GetStackOverflowTagsTotalCountAsync(CancellationToken cancellationToken);
 }

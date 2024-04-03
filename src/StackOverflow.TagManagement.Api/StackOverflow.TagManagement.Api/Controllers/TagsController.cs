@@ -8,7 +8,7 @@ namespace StackOverflow.TagManagement.Api.Controllers;
 [ApiController]
 public class TagsController : ControllerBase
 {
-    [HttpPost]
+    [HttpPost("refresh")]
     public async Task<IActionResult> RefreshTagsAsync([FromServices]ITagsService tagsService,
         [FromQuery] uint startPage = 1,
         [FromQuery] uint pageCount = 20,
