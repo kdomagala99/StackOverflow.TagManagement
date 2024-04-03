@@ -6,11 +6,11 @@ public static class Constants
 
     public static class StackOverflow
     {
-        public static string GetTagsEndpoint(uint page = 1,
-            uint pageSize = 100,
+        public static string GetTagsEndpoint(int page = 1,
+            int pageSize = 100,
             Order order = Order.Desc,
-            uint min = 1,
-            uint max = 999,
+            int min = 1,
+            int max = 999,
             Sort sort = Sort.Popular)
             => $@"{StackOverflowBaseUrl}/tags?page={page}&pagesize={pageSize}&fromdate=1217541600&todate=1893452400&order={order.ToString().ToLower()}&min={min}&max={max}&sort={sort.ToString().ToLower()}&site=stackoverflow";
     }
@@ -20,14 +20,15 @@ public static class Constants
         public const string SuccessfullyRefreshedTags = "Successfully refreshed tags from StackOverflow";
     }
 
-    public const uint MAX_ITERATIONS = 100;
-    public const uint MIN_TAGS_COUNT = 1000;
+    public const int MAX_ITERATIONS = 100;
+    public const int MIN_TAGS_COUNT = 1000;
 
     public const string METADATA_VERSION = "MetaDataV1";
 }
 
 public enum Order 
 {
+    None,
     Asc,
     Desc
 }

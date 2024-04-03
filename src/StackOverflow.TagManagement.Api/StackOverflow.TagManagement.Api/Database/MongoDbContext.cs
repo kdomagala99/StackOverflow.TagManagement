@@ -2,7 +2,6 @@
 using StackOverflow.TagManagement.Api.Configurations;
 using StackOverflow.TagManagement.Api.DTO;
 using StackOverflow.TagManagement.Api.Models;
-using System.Numerics;
 
 namespace StackOverflow.TagManagement.Api.Database;
 
@@ -21,7 +20,7 @@ public class MongoDbContext : IDbContext
 
     public async Task<bool> DeleteStackOverflowTagAsync(string name, CancellationToken cancellationToken = default)
     {
-        var tag = await this.stackOverflowTagsCollection.Find(tag => tag.Name.Equals(name))
+        var tag = await this.stackOverflowTagsCollection.Find(tag => tag.Name!.Equals(name))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (tag is null)
@@ -29,7 +28,7 @@ public class MongoDbContext : IDbContext
             return false;
         }
 
-        var result = await this.stackOverflowTagsCollection.DeleteOneAsync(tag => tag.Name.Equals(name), cancellationToken);
+        var result = await this.stackOverflowTagsCollection.DeleteOneAsync(tag => tag.Name!.Equals(name), cancellationToken);
         var deleteResult = result.DeletedCount > 0;
 
         if (deleteResult)
@@ -42,17 +41,15 @@ public class MongoDbContext : IDbContext
 
     public async Task<StackOverflowTagDto?> GetStackOverflowTagAsync(string name, CancellationToken cancellationToken = default)
     {
-        var result = await this.stackOverflowTagsCollection.FindAsync(tag => tag.Name.Equals(name),
+        var result = await this.stackOverflowTagsCollection.FindAsync(tag => tag.Name!.Equals(name),
             cancellationToken: cancellationToken);
         return result.FirstOrDefault(cancellationToken: cancellationToken);
     }
 
-    public async Task<IEnumerable<StackOverflowTagDto>> GetStackOverflowTagsAsync(int skip = 0, int take = int.MaxValue, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<StackOverflowTagDto>> GetStackOverflowTagsAsync(CancellationToken cancellationToken = default)
     {
         var result = await this.stackOverflowTagsCollection.Find(_ => true)
-                                             .Skip(skip)
-                                             .Limit(take)
-                                             .ToListAsync(cancellationToken);
+            .ToListAsync(cancellationToken);
         return result;
     }
 
@@ -73,7 +70,7 @@ public class MongoDbContext : IDbContext
 
     public async Task<bool> PutStackOverflowTagAsync(string name, StackOverflowTagDto stackOverflowTag, CancellationToken cancellationToken = default)
     {
-        var result = await this.stackOverflowTagsCollection.FindOneAndReplaceAsync(tag => tag.Name.Equals(name),
+        var result = await this.stackOverflowTagsCollection.FindOneAndReplaceAsync(tag => tag.Name!.Equals(name),
             stackOverflowTag,
             cancellationToken: cancellationToken);
 
@@ -102,10 +99,10 @@ public class MongoDbContext : IDbContext
         }
     }
 
-    public async Task<BigInteger> GetStackOverflowTagsTotalCountAsync(CancellationToken cancellationToken)
-        => (await this.metaDataCollection.FindAsync(md => md.Version.Equals(Constants.METADATA_VERSION))).First()?.TotalTagCount ?? BigInteger.Zero;
+    public async Task<int> GetStackOverflowTagsTotalCountAsync(CancellationToken cancellationToken)
+        => (await this.metaDataCollection.FindAsync(md => md.Version.Equals(Constants.METADATA_VERSION))).First()?.TotalTagCount ?? 0;
 
-    private async Task AddCountValue(BigInteger value)
+    private async Task AddCountValue(int value)
     {
         if ((await this.metaDataCollection.FindAsync(md => md.Version.Equals(Constants.METADATA_VERSION))).Any())
         {

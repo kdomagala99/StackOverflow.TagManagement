@@ -16,8 +16,38 @@ public record StackOverflowTagDto
     [JsonPropertyName("last_activity_date")]
     public DateTime? ListActivityDate { get; init; }
     [BsonId]
-    public required string Name { get; init; }
+    public string? Name { get; init; }
     public IEnumerable<string>? Synonyms { get; init; }
     [JsonPropertyName("user_id")]
     public int? UserId { get; init; }
+
+    public StackOverflowTagDto()
+    {
+    }
+
+    public StackOverflowTagDto(IEnumerable<CollectiveDto>? collectives, int count, bool hasSynonyms, bool isModeratorOnly, bool isRequired, DateTime? listActivityDate, string name, IEnumerable<string>? synonyms, int? userId)
+    {
+        this.Collectives = collectives;
+        this.Count = count;
+        this.HasSynonyms = hasSynonyms;
+        this.IsModeratorOnly = isModeratorOnly;
+        this.IsRequired = isRequired;
+        this.ListActivityDate = listActivityDate;
+        this.Name = name;
+        this.Synonyms = synonyms;
+        this.UserId = userId;
+    }
+
+    public StackOverflowTagDto(StackOverflowTagDto other)
+    {
+        this.Collectives = other.Collectives;
+        this.Count = other.Count;
+        this.HasSynonyms = other.HasSynonyms;
+        this.IsModeratorOnly = other.IsModeratorOnly;
+        this.IsRequired = other.IsRequired;
+        this.ListActivityDate = other.ListActivityDate;
+        this.Name = other.Name;
+        this.Synonyms = other.Synonyms;
+        this.UserId = other.UserId;
+    }
 }

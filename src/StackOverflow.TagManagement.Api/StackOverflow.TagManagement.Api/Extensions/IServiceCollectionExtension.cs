@@ -3,6 +3,7 @@ using StackOverflow.TagManagement.Api.Configurations;
 using StackOverflow.TagManagement.Api.Database;
 using StackOverflow.TagManagement.Api.Services;
 using System.Net;
+using System.Text.Json.Serialization;
 
 namespace StackOverflow.TagManagement.Api.Extensions;
 
@@ -46,8 +47,11 @@ public static class IServiceCollectionExtension
     
     public static IServiceCollection AddControllersWithConfiguration(this IServiceCollection services)
     {
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         services.AddRouting(options => options.LowercaseUrls = true);
+        
         return services;
     }
 }

@@ -11,13 +11,13 @@ public static class IServiceProviderExtension
         var services = scope.ServiceProvider;
         var db = services.GetRequiredService<IDbContext>();
         var tagsService = services.GetRequiredService<ITagsService>();
-        uint i = 1;
+        int i = 1;
 
         // Using MAX_ITERATIONS prevents infinite loop
         while (await db.CountTagsAsync(CancellationToken.None) < Constants.MIN_TAGS_COUNT && i < Constants.MAX_ITERATIONS)
         {
-            var count = Math.Ceiling((Constants.MIN_TAGS_COUNT - (double)await db.CountTagsAsync(CancellationToken.None))/99.0);
-            await tagsService.GetTagsFromStackOverflowAsync(i, (uint)count, CancellationToken.None);
+            var count = (int)Math.Ceiling((Constants.MIN_TAGS_COUNT - (double)await db.CountTagsAsync(CancellationToken.None))/99.0);
+            await tagsService.GetTagsFromStackOverflowAsync(i, count, CancellationToken.None);
             i++;
         }
 
