@@ -13,7 +13,8 @@ public static class JsonSerializerOptionsExtension
     private static JsonSerializerOptions WriteOptionsObject => new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+        WriteIndented = true
     };
 
     public static JsonSerializerOptions ReadOptions => ReadOptionsObject;

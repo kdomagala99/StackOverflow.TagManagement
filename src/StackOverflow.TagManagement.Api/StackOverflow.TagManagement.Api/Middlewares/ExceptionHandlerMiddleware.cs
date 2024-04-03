@@ -6,14 +6,10 @@ using System.Text.Json;
 
 namespace StackOverflow.TagManagement.Api.Middlewares;
 
-public class ExceptionHandlerMiddleware
+public class ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger)
 {
-    private readonly RequestDelegate next;
-
-    public ExceptionHandlerMiddleware(RequestDelegate next)
-    {
-        this.next = next;
-    }
+    private readonly RequestDelegate next = next;
+    private readonly ILogger logger = logger;
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -26,19 +22,20 @@ public class ExceptionHandlerMiddleware
             var response = context.Response;
             response.ContentType = "application/json";
             response.StatusCode = exception.HttpCode;
-            await PrepareResponse(response, exception.Message);
+            await PrepareResponse(context, exception, response, exception.Message);
         }
-        catch
+        catch (Exception exception)
         {
             var response = context.Response;
             response.ContentType = "application/json";
             response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            await PrepareResponse(response, Constants.Messages.InternalServerErrorException);
+            await PrepareResponse(context, exception, response, Constants.Messages.InternalServerErrorException);
         }
     }
 
-    private static async Task PrepareResponse(HttpResponse response, string message)
+    private async Task PrepareResponse(HttpContext httpContext, Exception exception, HttpResponse response, string message)
     {
+        this.logger.LogError("{UtcTime}: Error for request {RequestUri} is {Message}", DateTime.UtcNow, httpContext.Request.Path, exception);
         var result = new ResponseDto(Error: message);
         await response.WriteAsync(JsonSerializer.Serialize(result, JsonSerializerOptionsExtension.WriteOptions));
     }

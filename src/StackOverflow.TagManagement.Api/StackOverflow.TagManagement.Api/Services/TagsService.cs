@@ -6,21 +6,23 @@ using System.Text.Json;
 
 namespace StackOverflow.TagManagement.Api.Services;
 
-public class TagsService(IHttpClientFactory httpClientFactory, IDbContext dbContext) : ITagsService
+public class TagsService(IHttpClientFactory httpClientFactory, IDbContext dbContext, ILogger<TagsService> logger) : ITagsService
 {
     private readonly HttpClient httpClient = httpClientFactory.CreateClient();
     private readonly IDbContext dbContext = dbContext;
+    private readonly ILogger logger = logger;
 
     public async Task<IEnumerable<GetStackOverflowTagDto>> GetTagsFromLocalDbAsync(int skip, int take, Order orderByName, Order orderByTagPercentage, CancellationToken cancellationToken)
     {
-        var tags = await this.dbContext.GetStackOverflowTagsAsync(cancellationToken);
+        this.logger.LogInformation("{UtcTime}: Getting tags from local db...", DateTime.UtcNow);
+        var tags = await this.dbContext.GetStackOverflowTagsAsync(cancellationToken) ?? throw new NotFoundException();
+        this.logger.LogInformation("{UtcTime}: Finished getting tags from local db.", DateTime.UtcNow);
+        this.logger.LogTrace("{UtcTime}: Tags: {Tags}", DateTime.UtcNow, JsonSerializer.Serialize(tags, JsonSerializerOptionsExtension.WriteOptions));
 
-        if (tags is null)
-        {
-            throw new NotFoundException();
-        }
-
+        this.logger.LogInformation("{UtcTime}: Getting tags total count from local db...", DateTime.UtcNow);
         var totalCount = await this.dbContext.GetStackOverflowTagsTotalCountAsync(cancellationToken);
+        this.logger.LogInformation("{UtcTime}: Finished getting tags total count from local db.", DateTime.UtcNow);
+
         var values = tags.Select(t =>
         {
             var count = (double)t.Count / totalCount;
@@ -68,20 +70,28 @@ public class TagsService(IHttpClientFactory httpClientFactory, IDbContext dbCont
         List<StackOverflowTagDto> tags = [];
         for (int i = startPage; i <= startPage + pageCount; i++)
         {
+            this.logger.LogInformation("{UtcTime}: Getting tags from StackOverflow for {page} page...", DateTime.UtcNow, i);
             tags.AddRange(await this.GetTagsAsync(i, cancellationToken));
         }
-        
+        this.logger.LogInformation("{UtcTime}: Finished getting tags from StackOverflow.", DateTime.UtcNow);
+        this.logger.LogTrace("{UtcTime}: Tags: {tags}", DateTime.UtcNow, JsonSerializer.Serialize(tags, JsonSerializerOptionsExtension.WriteOptions));
+
+        this.logger.LogInformation("{UtcTime}: Posting tags to local db...", DateTime.UtcNow);
         var result = await this.dbContext.PostStackOverflowTagsAsync(tags, cancellationToken);
         if(!result)
         {
             throw new InsufficientStorageException();
         }
+        this.logger.LogInformation("{UtcTime}: Finished posting tags to local db.", DateTime.UtcNow);
     }
 
     private async Task<IEnumerable<StackOverflowTagDto>> GetTagsAsync(int page, CancellationToken cancellationToken = default)
     {
+        this.logger.LogDebug("{UtcTime}: Getting data from StackOverflow...", DateTime.UtcNow);
         var response = await this.httpClient.GetAsync(Constants.StackOverflow.GetTagsEndpoint(page: page), cancellationToken);
-        
+        this.logger.LogDebug("{UtcTime}: Finished getting data from StackOverflow.", DateTime.UtcNow);
+        this.logger.LogTrace("{UtcTime}: Response: {Response}", DateTime.UtcNow, JsonSerializer.Serialize(response, JsonSerializerOptionsExtension.WriteOptions));
+
         if (!response.IsSuccessStatusCode)
         {
             throw new ServiceUnavailableException();

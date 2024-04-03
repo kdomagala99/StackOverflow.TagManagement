@@ -21,8 +21,16 @@ if (app.Environment.IsDevelopment())
 
 using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
 {
+    var logger = serviceScope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    logger?.LogTrace("Trace first log message from application:[Program][{CurrentUtcTime}]", DateTime.UtcNow);
+}
+
+using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
     await app.Services.GetFirstTagsAsync();
 }
+
+app.UseMiddleware<LoggingMiddleware>();
 
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 
