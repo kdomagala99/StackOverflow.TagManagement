@@ -25,7 +25,7 @@ public static class Constants
 
         public const string ServiceUnavailableException = "The service is currently unavailable.";
 
-        public const string InsufficientStorageException = "Insufficient storage or database issue to complete the operation.";
+        public const string InsufficientStorageException = "Insufficient storage, data duplication or database issue to complete the operation.";
     }
 
     public const int MAX_ITERATIONS = 100;

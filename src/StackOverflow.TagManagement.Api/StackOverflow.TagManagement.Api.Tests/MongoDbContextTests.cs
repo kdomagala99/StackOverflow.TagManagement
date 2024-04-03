@@ -21,7 +21,7 @@ namespace StackOverflow.TagManagement.Api.Tests
         [TestMethod]
         public void MongoCreateDatabase_ShouldCreate_ThenDrop()
         {
-            this.dbContext = new MongoDbContext(new MongoDbConfiguration() { ConnectionString = this.connectionString, DatabaseName = this.databaseName });
+            var dbContext = new MongoDbContext(new MongoDbConfiguration() { ConnectionString = this.connectionString, DatabaseName = this.databaseName });
             var client = new MongoClient(this.connectionString);
             client.DropDatabase(this.databaseName);
         }
