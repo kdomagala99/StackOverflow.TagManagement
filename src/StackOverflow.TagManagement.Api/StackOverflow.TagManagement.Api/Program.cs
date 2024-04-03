@@ -1,12 +1,14 @@
+using StackOverflow.TagManagement.Api.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 
-services.AddControllers();
-services.AddEndpointsApiExplorer();
-services.AddSwaggerGen();
-
-
+services.AddControllersWithConfiguration();
+services.AddOpenApiData();
+services.AddHttpClientWithHandler();
+services.AddSingletons(builder);
+services.AddScopeds();
 
 var app = builder.Build();
 
@@ -16,9 +18,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+    await app.Services.GetFirstTags();
+}
 
-app.UseAuthorization();
+app.UseHttpsRedirection();
 
 app.MapControllers();
 
